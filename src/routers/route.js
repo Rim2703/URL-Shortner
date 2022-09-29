@@ -5,4 +5,4 @@ const urlController = require('../Controllers/urlController')
 router.post("/url/shorten", urlController.createURL)
 
 
-module.exports  = router
+module.exports = router
