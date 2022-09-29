@@ -21,7 +21,8 @@ const createURL = async function (req, res) {
 
         let uniqueUrl = await urlModel.findOne({ longUrl: longUrl })
         if (uniqueUrl) return res.status(200).send({ status: true, message: "URL already shortened" }) //data: uniqueUrl})
-        const urlCode = shortid.generate();
+
+        const urlCode = shortid.generate().toLowerCase()
 
         let alreadyURl = await urlModel.findOne({ urlCode: urlCode })
         if (alreadyURl) return res.status(409).send({ status: true, message: "URL already exist" })
@@ -42,4 +43,21 @@ const createURL = async function (req, res) {
     }
 }
 
-module.exports = { createURL }
+const getUrl = async function (req, res) {
+    try {
+        let data = req.params.urlCode
+
+        if (!shortid.isValid(data)) return res.status(400).send({ status: false, message: "please enter valid URL code" })
+
+        let findUrl = await urlModel.findOne({ urlCode: data })
+        if (!findUrl) return res.status(404).send({ status: false, message: "UrlCode does not exist!!" })
+
+        return res.status(302).redirect(findUrl.longUrl)
+
+    }
+    catch (err) {
+        res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+module.exports = { createURL, getUrl }
