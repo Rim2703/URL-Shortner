@@ -20,7 +20,7 @@ const createURL = async function (req, res) {
         if (!validUrl.isUri(longUrl)) return res.status(400).send({ status: false, message: "Please provide valid URL" })
 
         let uniqueUrl = await urlModel.findOne({ longUrl: longUrl })
-        if (uniqueUrl) return res.status(200).send({ status: true, message: "URL already shortened" }) //data: uniqueUrl})
+        if (uniqueUrl) return res.status(200).send({ status: true, message: "URL already shortened", data: uniqueUrl })
 
         const urlCode = shortid.generate().toLowerCase()
 
@@ -39,7 +39,7 @@ const createURL = async function (req, res) {
 
     }
     catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+        res.status(500).send({ status: false, Error: err.message })
     }
 }
 
@@ -56,7 +56,7 @@ const getUrl = async function (req, res) {
 
     }
     catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+        res.status(500).send({ status: false, Error: err.message })
     }
 }
 
