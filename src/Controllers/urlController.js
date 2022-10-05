@@ -82,13 +82,13 @@ const getUrl = async function (req, res) {
 
         let cahcedProfileData = await GET_ASYNC(`${data}`)
         if (cahcedProfileData) {
-          return res.redirect(JSON.parse(cahcedProfileData))
+          return res.status(302).redirect(JSON.parse(cahcedProfileData))
 
         } else {
             let findUrl = await urlModel.findOne({ urlCode: data })
             if (!findUrl) return res.status(404).send({ status: false, message: "UrlCode does not found!!" })
-            await SET_ASYNC(`${data}`, JSON.stringify(findUrl.longUrl))
-            return res.redirect(findUrl.longUrl)
+            await SET_ASYNC(`${data}`, findUrl.longUrl)
+            return res.status(302).redirect(findUrl.longUrl)
         }
     }
     catch (err) {
