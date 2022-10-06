@@ -80,9 +80,9 @@ const getUrl = async function (req, res) {
 
         if (!shortid.isValid(data)) return res.status(400).send({ status: false, message: "please enter valid URL code" })
 
-        let cahcedProfileData = await GET_ASYNC(`${data}`)
-        if (cahcedProfileData) {
-          return res.redirect(JSON.parse(cahcedProfileData))
+        let cachedURLData = await GET_ASYNC(`${data}`)
+        if (cachedURLData) {
+          return res.redirect(JSON.parse(cachedURLData))
 
         } else {
             let findUrl = await urlModel.findOne({ urlCode: data })
