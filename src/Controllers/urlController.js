@@ -80,15 +80,21 @@ const getUrl = async function (req, res) {
 
         if (!shortid.isValid(data)) return res.status(400).send({ status: false, message: "please enter valid URL code" })
 
+<<<<<<< HEAD
         let cachedURLData = await GET_ASYNC(`${data}`)
         if (cachedURLData) {
           return res.redirect(JSON.parse(cachedURLData))
+=======
+        let cahcedProfileData = await GET_ASYNC(`${data}`)
+        if (cahcedProfileData) {
+          return res.status(302).redirect(JSON.parse(cahcedProfileData))
+>>>>>>> 786ecd76e7b055cac9fbd5c3a2cdfdba448b5a2e
 
         } else {
             let findUrl = await urlModel.findOne({ urlCode: data })
             if (!findUrl) return res.status(404).send({ status: false, message: "UrlCode does not found!!" })
-            await SET_ASYNC(`${data}`, JSON.stringify(findUrl.longUrl))
-            return res.redirect(findUrl.longUrl)
+            await SET_ASYNC(`${data}`, findUrl.longUrl)
+            return res.status(302).redirect(findUrl.longUrl)
         }
     }
     catch (err) {
