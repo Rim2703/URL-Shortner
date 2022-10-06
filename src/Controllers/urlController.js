@@ -1,5 +1,4 @@
 const urlModel = require('../models/urlModel')
-const validUrl = require('valid-url')
 const shortid = require('shortid')
 
 const baseUrl = "http://localhost:3000/"
@@ -39,16 +38,21 @@ const isValid = function (value) {
     return true;
 }
 
+const isValidURL = function(URL){
+    return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%.\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%\+.~#?&//=]*)/.test(URL)
+}
+
 const createURL = async function (req, res) {
     try {
         let data = req.body
         const longUrl = data.longUrl
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please Provide data" })
         if (!isValid(longUrl)) return res.status(400).send({ status: false, message: "Please provide URL" })
-        if (!validUrl.isUri(longUrl)) return res.status(400).send({ status: false, message: "Please provide valid URL" })
 
-        let uniqueUrl = await urlModel.findOne({ longUrl: longUrl })
-        if (uniqueUrl) return res.status(200).send({ status: true, message: "URL already shortened", data: uniqueUrl })
+        if (!isValidURL(longUrl)) return res.status(400).send({ status: false, message: "Please provide valid URL" })
+
+        let cachedURLData = await GET_ASYNC(`${longUrl}`)
+        if (cachedURLData) return res.status(200).send({ status: true, message: "URL already shortened", data: JSON.parse(cachedURLData) })
 
         const urlCode = shortid.generate().toLowerCase()
 
@@ -80,20 +84,14 @@ const getUrl = async function (req, res) {
 
         if (!shortid.isValid(data)) return res.status(400).send({ status: false, message: "please enter valid URL code" })
 
-<<<<<<< HEAD
         let cachedURLData = await GET_ASYNC(`${data}`)
         if (cachedURLData) {
-          return res.redirect(JSON.parse(cachedURLData))
-=======
-        let cahcedProfileData = await GET_ASYNC(`${data}`)
-        if (cahcedProfileData) {
-          return res.status(302).redirect(JSON.parse(cahcedProfileData))
->>>>>>> 786ecd76e7b055cac9fbd5c3a2cdfdba448b5a2e
+          return res.status(302).redirect(JSON.parse(cachedURLData))
 
         } else {
             let findUrl = await urlModel.findOne({ urlCode: data })
             if (!findUrl) return res.status(404).send({ status: false, message: "UrlCode does not found!!" })
-            await SET_ASYNC(`${data}`, findUrl.longUrl)
+            await SET_ASYNC(`${data}`, JSON.stringify(findUrl.longUrl))
             return res.status(302).redirect(findUrl.longUrl)
         }
     }
