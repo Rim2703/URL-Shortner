@@ -9,8 +9,8 @@ const { promisify } = require("util");
 
 //Connect to redis
 const redisClient = redis.createClient(
-    10976,
-    "redis-10976.c301.ap-south-1-1.ec2.cloud.redislabs.com",
+    10976,    //PORT Number
+    "redis-10976.c301.ap-south-1-1.ec2.cloud.redislabs.com",         //Host address (endpoint)
     { no_ready_check: true }
 );
 redisClient.auth("63Fkn6vvGYtfftugyWgr7LrK8Emyqedh", function (err) {
@@ -58,7 +58,7 @@ const createURL = async function (req, res) {
         let isUrlPresent = await urlModel.findOne({longUrl})
         if(isUrlPresent){
             console.log("db call..")
-            await SET_ASYNC(`${longUrl}`, JSON.stringify(isUrlPresent))
+            await SET_ASYNC(`${longUrl}`, JSON.stringify(isUrlPresent), "EX", 1000)
             return res.status(200).send({status:true, message: "Short URL already genreated", data:isUrlPresent})
         }
 
@@ -107,7 +107,7 @@ const getUrl = async function (req, res) {
             if (!findUrl) return res.status(404).send({ status: false, message: "UrlCode does not found!!" })
            
             // set longurl(Original) in cache with there respective key i.e urlcode
-            await SET_ASYNC(`${data}`, JSON.stringify(findUrl.longUrl))
+            await SET_ASYNC(`${data}`, JSON.stringify(findUrl.longUrl), "EX", 1000)
             return res.status(302).redirect(findUrl.longUrl)
         }
     }
